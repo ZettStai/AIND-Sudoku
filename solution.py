@@ -41,22 +41,51 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
-    # Find all instances of naked twins
 
-    twins = [box for box in values.keys() if len(values[box]) == 2]
+    no_more_twins = False
+    # We have to iterate through all units until there are no more twins to be found. The way we do that is to compare the board before
+    # and after the naked twins detection. If the board is the same then no new twins have been found. We have to do it in a while loop
+    # because we might uncover new twins when possible values are removed from peers
 
-    matchedtwins = [[a,b] for a in twins for b in peers[a] if set(values[a])==set(values[b]) ]
+    while not no_more_twins:
+        board_before = values
 
-    # Eliminate the naked twins as possibilities for their peers
+        # Find all instances of naked twins
 
-    for i in range(len(matchedtwins)):
-        a = matchedtwins[i][0]
-        b = matchedtwins[i][1]
-        commonpeers = set(peers[a]) & set(peers[b])
-        for c in commonpeers:
-            if len(values[c]) > 2:
-                for digit in values[a]:
-                    values[c] = values[c].replace(digit,'')
+        # we select all the boxes which have length of their digits equal to 2
+
+        twins = [box for box in values.keys() if len(values[box]) == 2]
+
+        # We can create a dictionary here for more efficient implementation
+
+        # dictionary:
+        #  keys: two-digit box values
+        #  values: lists of boxes containing exactly these digits
+        # if we have exact two matches (not triplets or more) and the values are the same then we have a naked twin
+
+        nakedtwins = [[a,b] for a in twins for b in peers[a] if set(values[a])==set(values[b]) ]
+
+        # Eliminate the naked twins as possibilities for their peers
+
+        #for every naked twin find common peers
+        for i in range(len(nakedtwins)):
+            a = nakedtwins[i][0]
+            b = nakedtwins[i][1]
+            commonpeers = set(peers[a]) & set(peers[b])
+            # for each box in the unit which is not one of the two naked twins remove the possible values
+            for c in commonpeers:
+                if len(values[c]) > 2:
+                    for digit in values[a]:
+                        values[c] = values[c].replace(digit,'')
+
+        board_after = values
+        # if boards before and after naked twin detection are the same then there are no more twins thus we end the while loop
+        if board_before == board_after:
+            no_more_twins = True
+
+    return values
+
+
     return values
 
 def grid_values(grid):
@@ -161,7 +190,6 @@ def solve(grid):
     values = search(values)
 
     return values
-
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
