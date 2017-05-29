@@ -141,6 +141,14 @@ def display(values):
     return
 
 def eliminate(values):
+    """ 
+    Eliminate solved values from peers
+    
+    Args: 
+        values(dict): The sudoku in dictionary form
+    Returns:
+        The dictionary representation of the reduced sudoku grid. 
+    """
     solved_values = [box for box in values.keys() if len(values[box]) == 1]
     for box in solved_values:
         digit = values[box]
@@ -150,6 +158,13 @@ def eliminate(values):
     return values
 
 def only_choice(values):
+    """ 
+    Applies only choice strategy
+
+    Args: 
+        values(dict): The sudoku in dictionary form
+    Returns:
+    """
     for unit in unitlist:
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
@@ -158,6 +173,16 @@ def only_choice(values):
     return values
 
 def reduce_puzzle(values):
+    """ 
+    Applies 3 sudoku solving strategies (eliminate, only_choice, naked_twins
+     until it stalls
+
+    Args: 
+        values(dict): The sudoku in dictionary form
+    Returns:
+        Updated values for sudoku board
+    """
+
     solved_values = [box for box in values.keys() if len(values[box]) == 1]
     stalled = False
     while not stalled:
